@@ -1,0 +1,68 @@
+version: '3.8'
+
+# TOP-LEVEL NETWORKS DEFINITION (No spaces before 'networks:')
+networks:
+  football-net:
+    driver: bridge
+
+# TOP-LEVEL VOLUMES DEFINITION
+volumes:
+  prometheus_data:
+  grafana_data:
+  jenkins_data:
+
+services:
+  football-backend:
+    build: ./backend      # Looks for ./backend/Dockerfile
+    container_name: football-backend
+    ports:
+      - "8080:8080"
+    environment:
+      - API_SPORTS_KEY=${API_SPORTS_KEY}
+    networks:
+      - football-net
+
+  football-frontend:
+    build: ./frontend     # Looks for ./frontend/Dockerfile
+    container_name: football-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - football-backend
+    networks:
+      - football-net
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: football-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    networks:
+      - football-net
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: football-grafana
+    ports:
+      - "3001:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      - prometheus
+    networks:
+      - football-net
+
+  jenkins:
+    image: jenkins/jenkins:lts
+    container_name: football-jenkins
+    ports:
+      - "8082:8080"
+      - "50000:50000"
+    volumes:
+      - jenkins_data:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - football-net

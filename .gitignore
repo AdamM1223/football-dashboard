@@ -1,0 +1,20 @@
+# OS / IDE
+.DS_Store
+.idea/
+.vscode/
+
+# Node / Frontend
+**/node_modules/
+**/build/
+**/dist/
+.env
+.env.local
+
+# Java / Spring Boot
+**/target/
+**/.mvn/
+*.class
+*.jar
+
+# Docker
+*.log

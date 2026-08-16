@@ -1,0 +1,86 @@
+.player-grid {
+  display: grid;
+  /* This forces the grid to have 2 columns of equal width */
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  list-style-type: none;
+  padding: 0;
+  justify-content: center;
+}
+
+.player-card {
+  background-color: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  /* The grid will now handle the width of the card */
+  width: auto;
+  padding: 16px;
+  text-align: center;
+  transition: transform 0.2s ease;
+  position: relative;
+  cursor: pointer;
+}
+
+.player-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.player-name {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: black;
+  margin-bottom: 8px;
+}
+
+.player-position {
+  font-size: 0.95rem;
+  color: #555;
+  margin-bottom: 4px;
+}
+
+.player-number {
+  font-size: 0.85rem;
+  color: #888;
+}
+
+.tooltip {
+  position: absolute;
+  bottom: 110%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #333;
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.player-card:hover .tooltip {
+  opacity: 1;
+}
+
+.page-title {
+  text-align: center;
+  font-size: 2.5em;
+  color: #aa0505;
+  margin-bottom: 20px;
+}
+
+/* Container to hold all the position columns */
+.players-sections-wrapper {
+  display: flex; /* This is what makes the sections appear side-by-side */
+  flex-wrap: wrap; /* Allows columns to wrap to the next line on small screens */
+  gap: 30px; /* Space between the columns */
+}
+
+/* Styles for each individual position's column */
+.position-column {
+  flex: 1; /* This makes all columns take up equal space */
+  min-width: 250px; /* Ensures columns don't get too small */
+}

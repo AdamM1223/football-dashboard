@@ -1,0 +1,67 @@
+.fixtures-list {
+  list-style: none;
+  padding: 0;
+  margin-top: 1rem;
+}
+
+.fixture-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #ddd;
+  font-size: 1rem;
+}
+
+/* Container for the home page content to manage overall spacing */
+.home-container {
+    padding: 20px;
+    max-width: 1200px;
+    text-align: center;
+    margin: 0 auto;
+    font-family: 'Arial', sans-serif;
+}
+
+/* Styles for the main heading on the home page */
+.home-title {
+    text-align: center; /* Centers the text horizontally */
+    font-size: 2.8rem; /* Makes the title larger and more prominent */
+    color: #c91616; /* A dark, but not harsh, color */
+    margin-bottom: 25px; /* Adds space below the title */
+    padding: 10px; /* Adds internal padding to give it breathing room */
+}
+
+.team-names {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.team {
+  font-weight: 500;
+}
+
+.score {
+  font-weight: bold;
+  color: #007bff;
+}
+
+.match-status {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.page-title {
+  text-align: center;
+  font-size: 2.5em;
+  color: #aa0505;
+  margin-bottom: 20px;
+}
+
+/* Adjust font size on smaller screens for better readability */
+@media (max-width: 768px) {
+    .home-title {
+        font-size: 2rem;
+        padding: 5px;
+    }
+}

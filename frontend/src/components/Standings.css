@@ -1,0 +1,58 @@
+/* Container wrapping both table halves */
+.standings-columns-wrapper {
+    display: flex;
+    gap: 20px;
+    width: 100%;
+    align-items: flex-start;
+}
+
+.standings-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; /* Forces content to align to top */
+    align-items: center;        /* Centers content horizontally */
+    min-height: 100vh;
+    padding-top: 2rem;          /* Fixed top padding ensures title never moves */
+    box-sizing: border-box;
+}
+
+/* Equal width for left and right columns */
+.standings-column {
+    flex: 1;
+    min-width: 0; /* Prevents overflow inside flex child */
+    width: 95%;
+}
+
+/* Base table formatting */
+.standings-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.standings-table th,
+.standings-table td {
+    padding: 8px 6px;
+    text-align: center;
+}
+
+.team-cell {
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-align: left;
+}
+
+.team-logo-small {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+}
+
+/* Stack into a single vertical scroll on smaller screens */
+@media (max-width: 900px) {
+    .standings-columns-wrapper {
+        flex-direction: column;
+    }
+}
