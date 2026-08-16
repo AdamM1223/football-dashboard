@@ -14,7 +14,7 @@ A dynamic full-stack web application for exploring football squad rosters, team 
 
 ---
 
-## 🏗Architecture Overview
+## Architecture Overview
 
 ```text
                ┌─────────────────────────────────────────────────┐
