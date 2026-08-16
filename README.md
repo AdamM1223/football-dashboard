@@ -11,6 +11,8 @@ A dynamic full-stack web application for exploring football squad rosters, team 
 * **Split-Column Standings Table:** Streamlined 2-column league tables designed for quick scanning without excessive scrolling.
 * **Squad & Position Filtering:** Interactive player directory with position-based filtering (Goalkeepers, Defenders, Midfielders, Attackers).
 * **Reverse Proxy Architecture:** Nginx routes API requests cleanly while avoiding CORS friction during development and production.
+* **Full CI/CD Pipeline:** Automated container builds via Jenkins pushing to AWS ECR.
+* **Real-time Observability:** Application metric scraping with Prometheus and visual monitoring via Grafana dashboards.
 
 ---
 
@@ -40,11 +42,14 @@ A dynamic full-stack web application for exploring football squad rosters, team 
 Tech Stack
 Frontend: React, React Router v6, Axios, CSS3 (Flexbox/Grid) — View Frontend Docs
 
-Backend: Java, Spring Boot, WebClient/RestTemplate — View Backend Docs
+Backend: Java, Spring Boot, Spring Actuator, Micrometer Prometheus
 
-Infrastructure: Docker, Docker Compose, Nginx Reverse Proxy
+Observability: Prometheus, Grafana (Synthetic Monitoring & Dashboards)
+
+Infrastructure & CI/CD: Docker, Docker Compose, Nginx, Jenkins, AWS ECR
 
 Data Source: API-Sports (v3.football.api-sports.io)
+
 
 Getting Started
 
@@ -76,6 +81,48 @@ API Proxy Endpoint: http://localhost/api/football/standings?league=39&season=202
 
 To stop the services:
 docker-compose down
+
+---
+
+## 🔄 CI/CD Pipeline (Jenkins & AWS ECR)
+
+The repository includes a declarative `Jenkinsfile` configured at the root to automate container builds and push immutable Docker images to **AWS Elastic Container Registry (ECR)**.
+
+```text
+[ GitHub Push ] ──> [ Jenkins Pipeline ] ──> [ Docker Build ] ──> [ AWS ECR Repositories ]
+                                                                       ├── backend:latest
+                
+                                   
+## Observability      
+
+| Service | Port | Description |
+| :--- | :--- | :--- |
+| **Grafana** | `3000` | Analytics UI & Dashboard Visualization |
+| **Prometheus** | `9090` | Time-series metrics collection database |
+| **Spring Actuator** | `8080` | Exposes `/actuator/prometheus` metrics endpoint |
+
+Spring Boot API: Spring Boot’s micrometer-registry-prometheus dependency exposes an /actuator/prometheus endpoint with JVM health, HTTP request latencies, and system metrics.
+
+Prometheus: Pulls (scrapes) those metrics at regular intervals and stores time-series data.
+
+Grafana: Queries Prometheus to render real-time graphs for CPU usage, heap memory, response times, and uptime (Synthetics).
+                                                           
+                               ┌──────────────────┐
+                               │   Grafana UI     │
+                               │   (Port 3000)    │
+                               └────────┬─────────┘
+                                        │ Queries Metrics
+                                        ▼
+                               ┌──────────────────┐
+                               │    Prometheus    │
+                               │   (Port 9090)    │
+                               └────────┬─────────┘
+                                        │ Scrapes /actuator/prometheus
+                                        ▼
+┌──────────────────┐           ┌──────────────────┐           ┌──────────────────┐
+│    React SPA     │ ────────> │  Nginx Proxy     │ ────────> │ Spring Boot API  │
+│   (Port 80)      │           │   (Port 80)      │           │   (Port 8080)    │
+└──────────────────┘           └──────────────────┘           └──────────────────┘└── frontend:latest
 
 Repository Structure
 
