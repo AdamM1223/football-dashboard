@@ -1,10 +1,10 @@
-# ⚽ Full-Stack Football Dashboard
+# Full-Stack Football Dashboard
 
 A dynamic full-stack web application for exploring football squad rosters, team configurations, and league standings across top European leagues and historical seasons. Powered by **Spring Boot**, **React**, **Nginx**, and **API-Sports**.
 
 ---
 
-## 🌟 Key Features
+## Key Features
 
 * **Dynamic League & Season Filtering:** Seamlessly toggle between major leagues (Premier League, La Liga, Serie A, Bundesliga, Ligue 1, Championship) and seasons (2019–2023).
 * **Deep Linking & URL Sync:** Query parameters (`?league=140&season=2022`) persist across pages, allowing direct navigation and shareable views.
@@ -14,7 +14,7 @@ A dynamic full-stack web application for exploring football squad rosters, team 
 
 ---
 
-## 🏗️ Architecture Overview
+## 🏗Architecture Overview
 
 ```text
                ┌─────────────────────────────────────────────────┐
