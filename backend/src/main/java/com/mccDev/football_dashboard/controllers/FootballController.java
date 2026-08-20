@@ -78,7 +78,24 @@ public class FootballController {
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     @GetMapping("/players")
-    public ResponseEntity<List<PlayerDTO>> getSquad(    @Parameter(description = "Team ID (defaults to Chelsea)", example = "49") @RequestParam(required = false) Integer teamId)  {
-        return ResponseEntity.ok(footballService.getSquad(teamId));
+    public ResponseEntity<List<PlayerDTO>> getSquad(
+            @Parameter(description = "Team ID (defaults to Chelsea)", example = "49")
+            @RequestParam(required = false) Integer teamId,
+            @RequestParam(required = false) String season)  {
+        return ResponseEntity.ok(footballService.getSquad(teamId, season));
+    }
+
+    @GetMapping("/player")
+    public ResponseEntity<PlayerDetailDTO> getPlayerDetail(
+            @RequestParam Integer id,
+            @RequestParam(defaultValue = "2023") String season) {
+
+        PlayerDetailDTO detail = footballService.getPlayerDetail(id, season);
+
+        if (detail == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(detail);
     }
 }

@@ -12,8 +12,13 @@ export const getTeams = (leagueId, season) => {
 };
 
 // Function to get players by team ID
-export const getPlayers = (teamId) => {
-    return axios.get(`${API_URL}/players?teamId=${teamId}`);
+export const getPlayers = (teamId, season = '2023') => {
+    return axios.get(`${API_URL}/players`, {
+        params: {
+            teamId,
+            season
+        }
+    });
 };
 
 // You can add other functions here for standings, etc.
