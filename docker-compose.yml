@@ -1,19 +1,41 @@
 version: '3.8'
 
-# TOP-LEVEL NETWORKS DEFINITION (No spaces before 'networks:')
+# TOP-LEVEL NETWORKS
 networks:
   football-net:
     driver: bridge
 
-# TOP-LEVEL VOLUMES DEFINITION
+# TOP-LEVEL VOLUMES
 volumes:
   prometheus_data:
   grafana_data:
   jenkins_data:
 
 services:
+  #Kong API Gateway (DB-less)
+  kong:
+    image: kong:3.4-ubuntu
+    container_name: football-kong
+    environment:
+      KONG_DATABASE: "off"
+      KONG_DECLARATIVE_CONFIG: /usr/local/kong/declarative/kong.yml
+      KONG_PROXY_ACCESS_LOG: /dev/stdout
+      KONG_ADMIN_ACCESS_LOG: /dev/stdout
+      KONG_PROXY_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_ERROR_LOG: /dev/stderr
+      KONG_PROXY_LISTEN: 0.0.0.0:8000
+    volumes:
+      - ./kong/kong.yml:/usr/local/kong/declarative/kong.yml:ro
+    ports:
+      - "8000:8000"   # Gateway Entry Point for Frontend Requests
+      - "8001:8001"   # Kong Admin API
+    depends_on:
+      - football-backend
+    networks:
+      - football-net
+
   football-backend:
-    build: ./backend      # Looks for ./backend/Dockerfile
+    build: ./backend
     container_name: football-backend
     ports:
       - "8080:8080"

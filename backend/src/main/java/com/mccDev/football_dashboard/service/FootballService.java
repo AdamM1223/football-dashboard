@@ -64,7 +64,6 @@ public class FootballService {
         }).collect(Collectors.toList());
     }
 
-    @Cacheable(value = "teams", key = "#leagueId + '-' + #season")
     public List<Team> getAllTeams(Integer leagueId, Integer season) {
         int finalLeagueId = (leagueId != null) ? leagueId : 39;
         int finalSeason = (season != null) ? season : 2025;
@@ -88,7 +87,6 @@ public class FootballService {
                 .collect(Collectors.toList());
     }
 
-    @Cacheable(value = "standings", key = "#leagueId + '-' + #season")
     public List<StandingRaw> getStandings(Integer leagueId, Integer season) {
         int finalLeagueId = (leagueId != null) ? leagueId : 39;
         int finalSeasonId = (season != null) ? season : 2025;
@@ -106,7 +104,6 @@ public class FootballService {
         return response.getBody().getResponse().get(0).getLeague().getStandings().get(0);
     }
 
-    @Cacheable(value = "squads", key = "#teamId + '-' + #season")
     public List<PlayerDTO> getSquad(Integer teamId, String season) {
         int finalTeamId = (teamId != null) ? teamId : 49;
         String finalSeason = (season != null && !season.trim().isEmpty()) ? season : "2025";
@@ -178,7 +175,6 @@ public class FootballService {
         return dtos;
     }
 
-    @Cacheable(value = "playerDetails", key = "#playerId + '-' + #season")
     public PlayerDetailDTO getPlayerDetail(Integer playerId, String season) {
         String finalSeason = (season != null && !season.trim().isEmpty()) ? season : "2025";
         String url = String.format("https://v3.football.api-sports.io/players?id=%d&season=%s", playerId, finalSeason);
