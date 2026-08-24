@@ -1,8 +1,9 @@
 // src/services/api.js
 import axios from 'axios';
 
-// Set your backend URL as a constant to easily change it later
-const API_URL = '/api/football';
+// Sets API_URL to point directly at Kong
+const BASE_HOST = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+const API_URL = `${BASE_HOST}/api/football`;
 
 // Function to get teams by league and season
 export const getTeams = (leagueId, season) => {
