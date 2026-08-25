@@ -2,20 +2,14 @@ pipeline {
     agent any
 
     environment {
-        // PLACEHOLDERS: Replace with actual values
-        AWS_ACCOUNT_ID = '123456789012'              // Replace with AWS Account ID
-        AWS_REGION     = 'us-east-1'                 // Replace with target AWS Region (e.g. eu-west-1, us-east-1)
-        ECR_REGISTRY   = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
-
-        // AWS ECR Repository Names (Must match repos created in ECR console)
-        BACKEND_REPO   = 'football-dashboard-backend'
-        FRONTEND_REPO  = 'football-dashboard-frontend'
-
-        // Jenkins Credential ID for AWS access
+        AWS_ACCOUNT_ID     = credentials('aws-account-id') // Takes value from Jenkins secret
         AWS_CREDENTIALS_ID = 'aws-ecr-credentials'
+        AWS_REGION         = 'us-east-1'
 
-        // Generate dynamic tag based on Jenkins build number and Git commit hash
-        IMAGE_TAG      = "${BUILD_NUMBER}-${GIT_COMMIT.take(7)}"
+        // Dynamically constructs the ECR URI
+        ECR_REGISTRY       = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+        BACKEND_REPO       = 'football-dashboard-backend'
+        FRONTEND_REPO      = 'football-dashboard-frontend'
     }
 
     stages {
@@ -26,10 +20,24 @@ pipeline {
             }
         }
 
+        stage('Compile & Test Application') {
+            steps {
+                echo "Compiling Spring Boot backend..."
+                dir('backend') {
+                    // Ensures Maven Wrapper packages the backend cleanly
+                    sh './mvnw clean package -DskipTests'
+                }
+            }
+        }
+
         stage('Build Docker Images') {
             steps {
                 script {
-                    echo "Building Frontend and Backend Docker images..."
+                    // Safe evaluation of Git commit short hash
+                    SHORT_COMMIT = sh(script: "git rev-parse --short HEAD", returnStdout: true).trim()
+                    IMAGE_TAG    = "${BUILD_NUMBER}-${SHORT_COMMIT}"
+
+                    echo "Building Docker images with tag: ${IMAGE_TAG}"
                     sh "docker build -t ${BACKEND_REPO}:${IMAGE_TAG} ./backend"
                     sh "docker build -t ${FRONTEND_REPO}:${IMAGE_TAG} ./frontend"
                 }
@@ -40,7 +48,6 @@ pipeline {
             steps {
                 script {
                     echo "Authenticating to AWS ECR..."
-                    // Uses Jenkins Credentials Plugin to inject AWS Access Keys securely
                     withCredentials([usernamePassword(
                         credentialsId: "${AWS_CREDENTIALS_ID}",
                         usernameVariable: 'AWS_ACCESS_KEY_ID',
@@ -59,7 +66,10 @@ pipeline {
         stage('Tag and Push to ECR') {
             steps {
                 script {
-                    echo "Tagging and pushing images to ECR..."
+                    SHORT_COMMIT = sh(script: "git rev-parse --short HEAD", returnStdout: true).trim()
+                    IMAGE_TAG    = "${BUILD_NUMBER}-${SHORT_COMMIT}"
+
+                    echo "Tagging and pushing images to AWS ECR..."
 
                     // Backend: Push versioned tag + latest tag
                     sh "docker tag ${BACKEND_REPO}:${IMAGE_TAG} ${ECR_REGISTRY}/${BACKEND_REPO}:${IMAGE_TAG}"
@@ -83,7 +93,7 @@ pipeline {
             sh "docker image prune -f"
         }
         success {
-            echo "Successfully pushed images to AWS ECR!"
+            echo "Successfully built and pushed images to AWS ECR!"
         }
         failure {
             echo "Pipeline build failed. Check logs above for details."
