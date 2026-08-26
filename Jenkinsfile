@@ -88,14 +88,14 @@ pipeline {
     }
 
     post {
-            always {
-                node {
-                    echo 'Cleaning up local images to free disk space...'
-                    sh script: 'docker image prune -f', returnStatus: true
-                }
-            }
-            failure {
-                echo 'Pipeline build failed. Check logs above for details.'
+        always {
+            script {
+                echo 'Cleaning up local images to free disk space...'
+                sh script: 'docker image prune -f', returnStatus: true
             }
         }
+        failure {
+            echo 'Pipeline build failed. Check logs above for details.'
+        }
+    }
 }
