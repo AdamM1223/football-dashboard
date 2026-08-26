@@ -80,16 +80,14 @@ pipeline {
     }
 
     post {
-        always {
-            script {
-                catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+            always {
+                node {
                     echo 'Cleaning up local images to free disk space...'
-                    sh 'docker image prune -f'
+                    sh script: 'docker image prune -f', returnStatus: true
                 }
             }
+            failure {
+                echo 'Pipeline build failed. Check logs above for details.'
+            }
         }
-        failure {
-            echo 'Pipeline build failed. Check logs above for details.'
-        }
-    }
 }
