@@ -1,4 +1,4 @@
-# Logs
+ # Logs
 logs
 *.log
 npm-debug.log*
@@ -14,7 +14,6 @@ dist-ssr
 *.local
 .env
 .DS_Store
-Dockerfile
 .dockerignore
 nginx.conf
 
