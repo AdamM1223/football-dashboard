@@ -4,7 +4,7 @@ pipeline {
     environment {
         AWS_ACCOUNT_ID     = credentials('aws-account-id')
         AWS_CREDENTIALS_ID = 'aws-ecr-credentials'
-        AWS_REGION         = 'us-east-1'
+        AWS_REGION         = 'eu-central-1'
 
         ECR_REGISTRY       = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
         BACKEND_REPO       = 'football-dashboard-backend'
