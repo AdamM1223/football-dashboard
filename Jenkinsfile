@@ -76,12 +76,14 @@ pipeline {
     post {
             always {
                 script {
-                    echo 'Cleaning up local images to free disk space...'
-                    sh script: 'docker image prune -f', returnStatus: true
+                    echo 'Pipeline execution finished.'
                 }
             }
             failure {
                 echo 'Pipeline build failed. Check logs above for details.'
+            }
+            success {
+                echo 'Pipeline build passed successfully!'
             }
         }
 }
