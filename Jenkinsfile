@@ -88,15 +88,14 @@ pipeline {
     }
 
     post {
-        always {
-            echo "Cleaning up local images to free disk space..."
-            sh "docker image prune -f"
+            always {
+                node {
+                    echo 'Cleaning up local images to free disk space...'
+                    sh script: 'docker image prune -f', returnStatus: true
+                }
+            }
+            failure {
+                echo 'Pipeline build failed. Check logs above for details.'
+            }
         }
-        success {
-            echo "Successfully built and pushed images to AWS ECR!"
-        }
-        failure {
-            echo "Pipeline build failed. Check logs above for details."
-        }
-    }
 }
