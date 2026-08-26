@@ -81,7 +81,7 @@ pipeline {
 
     post {
             always {
-                node {
+                script {
                     echo 'Cleaning up local images to free disk space...'
                     sh script: 'docker image prune -f', returnStatus: true
                 }
