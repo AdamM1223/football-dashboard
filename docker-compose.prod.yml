@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  kong:
+    image: kong:3.4.0-alpine
+    container_name: football-kong
+    ports:
+      - "8000:8000"
+    environment:
+      KONG_DATABASE: "off"
+      KONG_DECLARATIVE_CONFIG: "/usr/local/kong/declarative/kong.yml"
+    volumes:
+      - ./kong/kong.yml:/usr/local/kong/declarative/kong.yml
+    networks:
+      - football-net
+
+  football-backend:
+    image: ${AWS_ACCOUNT_ID}.dkr.ecr.us-east-1.amazonaws.com/football-backend:latest
+    container_name: football-backend
+    ports:
+      - "8080:8080"
+    networks:
+      - football-net
+
+  football-frontend:
+    image: ${AWS_ACCOUNT_ID}.dkr.ecr.us-east-1.amazonaws.com/football-frontend:latest
+    container_name: football-frontend
+    ports:
+      - "3000:80"
+    networks:
+      - football-net
+
+networks:
+  football-net:
+    driver: bridge
