@@ -18,10 +18,11 @@ pipeline {
             }
         }
 
-        stage('Compile & Test Application') {
+        stage('Build & Package Backend') {
             steps {
                 dir('backend') {
-                    sh './mvnw clean package -DskipTests'
+                    // Dockerfile handles 'mvn clean package' inside Stage 1!
+                    sh "docker build -t ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${BACKEND_REPO}:latest ."
                 }
             }
         }
