@@ -117,9 +117,8 @@ X-RateLimit-Remaining-Minute: 14
 The repository includes a declarative `Jenkinsfile` configured at the root to automate container builds and push immutable Docker images to **AWS Elastic Container Registry (ECR)**.
 
 ```text
-[ GitHub Push ] ──> [ Jenkins Pipeline ] ──> [ Docker Build ] ──> [ AWS ECR Repositories ]
-                                                                       ├── backend:latest
-                
+[ Git Push ] ➔ [ Jenkins Pipeline ] ➔ [ Local Build (Backend & Frontend) ] ➔ [ AWS ECR ]
+```         
                                    
 ## Observability      
 
@@ -128,8 +127,9 @@ The repository includes a declarative `Jenkinsfile` configured at the root to au
 | **Grafana** | `3001` | Analytics UI & Dashboard Visualization |
 | **Kong Gateway** | `8000` | API Gateway proxying requests, caching & rate limiting |
 | **Prometheus** | `9090` | Time-series metrics collection database |
-| **Spring Actuator** | `8080` | Exposes `/actuator/prometheus` metrics endpoint |
 | **React SPA** | `3000` | Frontend Interface |
+| **Spring Actuator** | `8080` | Exposes `/actuator/prometheus` metrics endpoint |
+
 
 
 Spring Boot API: Spring Boot’s micrometer-registry-prometheus dependency exposes an /actuator/prometheus endpoint with JVM health, HTTP request latencies, and system metrics.
@@ -137,7 +137,7 @@ Spring Boot API: Spring Boot’s micrometer-registry-prometheus dependency expos
 Prometheus: Pulls (scrapes) those metrics at regular intervals and stores time-series data.
 
 Grafana: Queries Prometheus to render real-time graphs for CPU usage, heap memory, response times, and uptime (Synthetics).
-                                                           
+```text                                  
                                ┌──────────────────┐
                                │   Grafana UI     │
                                │   (Port 3001)    │
@@ -153,18 +153,23 @@ Grafana: Queries Prometheus to render real-time graphs for CPU usage, heap memor
 ┌──────────────────┐           ┌──────────────────┐           ┌──────────────────┐
 │    React SPA     │ ────────> │  Kong Gateway    │ ────────> │ Spring Boot API  │
 │   (Port 3000)    │           │   (Port 8000)    │           │   (Port 8080)    │
-└──────────────────┘           └──────────────────┘           └──────────────────┘└── frontend:latest
-
+└──────────────────┘           └──────────────────┘           └──────────────────┘
+```
+```text
 Repository Structure
 
 football-dashboard/
-├── docker-compose.yml       # Orchestrates Kong, Backend, and Frontend containers
-├── README.md                # Root project documentation
-├── kong/
-│   └── kong.yml             # Kong Gateway config
+├── docker-compose.yml       # Multi-container orchestration
+├── Jenkinsfile              # Declarative CI/CD pipeline definition
+├── README.md
 ├── backend/                 # Spring Boot REST API
+│   ├── src/
 │   ├── Dockerfile
-│   └── README.md
-└── frontend/                # React SPA
-    ├── Dockerfile
-    └── README.md
+│   └── pom.xml
+├── frontend/                # React SPA
+│   ├── src/
+│   ├── Dockerfile
+│   └── package.json
+└── kong/
+    └── kong.yml             # Kong Gateway config (DB-less mode)
+```
