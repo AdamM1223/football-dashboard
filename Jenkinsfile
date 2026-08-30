@@ -18,23 +18,18 @@ pipeline {
             }
         }
 
-        stage('Build & Package Backend') {
-            steps {
-                dir('backend') {
-                    // Dockerfile handles 'mvn clean package' inside Stage 1!
-                    sh "docker build -t ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${BACKEND_REPO}:latest ."
-                }
-            }
-        }
-
         stage('Build Docker Images') {
             steps {
                 script {
-                    SHORT_COMMIT = sh(script: "git rev-parse --short HEAD", returnStdout: true).trim()
-                    IMAGE_TAG    = "${BUILD_NUMBER}-${SHORT_COMMIT}"
+                    SHORT_COMMIT  = sh(script: "git rev-parse --short HEAD", returnStdout: true).trim()
+                    env.IMAGE_TAG = "${BUILD_NUMBER}-${SHORT_COMMIT}"
 
-                    sh "docker build -t ${BACKEND_REPO}:${IMAGE_TAG} ./backend"
-                    sh "docker build -t ${FRONTEND_REPO}:${IMAGE_TAG} ./frontend"
+                    dir('backend') {
+                        sh "docker build -t ${BACKEND_REPO}:${env.IMAGE_TAG} ."
+                    }
+                    dir('frontend') {
+                        sh "docker build -t ${FRONTEND_REPO}:${env.IMAGE_TAG} ."
+                    }
                 }
             }
         }
@@ -42,9 +37,9 @@ pipeline {
         stage('Authenticate to AWS ECR') {
             steps {
                 script {
-                    withCredentials([usernamePassword(credentialsId: 'aws-ecr-credentials', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY')]) {
+                    withCredentials([usernamePassword(credentialsId: "${AWS_CREDENTIALS_ID}", usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY')]) {
                         sh '''
-                            aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
+                            aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}
                         '''
                     }
                 }
@@ -54,19 +49,16 @@ pipeline {
         stage('Tag and Push to ECR') {
             steps {
                 script {
-                    SHORT_COMMIT = sh(script: "git rev-parse --short HEAD", returnStdout: true).trim()
-                    IMAGE_TAG    = "${BUILD_NUMBER}-${SHORT_COMMIT}"
-
                     // Push Backend
-                    sh "docker tag ${BACKEND_REPO}:${IMAGE_TAG} ${ECR_REGISTRY}/${BACKEND_REPO}:${IMAGE_TAG}"
-                    sh "docker tag ${BACKEND_REPO}:${IMAGE_TAG} ${ECR_REGISTRY}/${BACKEND_REPO}:latest"
-                    sh "docker push ${ECR_REGISTRY}/${BACKEND_REPO}:${IMAGE_TAG}"
+                    sh "docker tag ${BACKEND_REPO}:${env.IMAGE_TAG} ${ECR_REGISTRY}/${BACKEND_REPO}:${env.IMAGE_TAG}"
+                    sh "docker tag ${BACKEND_REPO}:${env.IMAGE_TAG} ${ECR_REGISTRY}/${BACKEND_REPO}:latest"
+                    sh "docker push ${ECR_REGISTRY}/${BACKEND_REPO}:${env.IMAGE_TAG}"
                     sh "docker push ${ECR_REGISTRY}/${BACKEND_REPO}:latest"
 
                     // Push Frontend
-                    sh "docker tag ${FRONTEND_REPO}:${IMAGE_TAG} ${ECR_REGISTRY}/${FRONTEND_REPO}:${IMAGE_TAG}"
-                    sh "docker tag ${FRONTEND_REPO}:${IMAGE_TAG} ${ECR_REGISTRY}/${FRONTEND_REPO}:latest"
-                    sh "docker push ${ECR_REGISTRY}/${FRONTEND_REPO}:${IMAGE_TAG}"
+                    sh "docker tag ${FRONTEND_REPO}:${env.IMAGE_TAG} ${ECR_REGISTRY}/${FRONTEND_REPO}:${env.IMAGE_TAG}"
+                    sh "docker tag ${FRONTEND_REPO}:${env.IMAGE_TAG} ${ECR_REGISTRY}/${FRONTEND_REPO}:latest"
+                    sh "docker push ${ECR_REGISTRY}/${FRONTEND_REPO}:${env.IMAGE_TAG}"
                     sh "docker push ${ECR_REGISTRY}/${FRONTEND_REPO}:latest"
                 }
             }
@@ -74,16 +66,14 @@ pipeline {
     }
 
     post {
-            always {
-                script {
-                    echo 'Pipeline execution finished.'
-                }
-            }
-            failure {
-                echo 'Pipeline build failed. Check logs above for details.'
-            }
-            success {
-                echo 'Pipeline build passed successfully!'
-            }
+        always {
+            echo 'Pipeline execution finished.'
         }
+        failure {
+            echo 'Pipeline build failed. Check logs above for details.'
+        }
+        success {
+            echo 'Pipeline build passed successfully!'
+        }
+    }
 }
