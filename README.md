@@ -155,6 +155,14 @@ Grafana: Queries Prometheus to render real-time graphs for CPU usage, heap memor
 │   (Port 3000)    │           │   (Port 8000)    │           │   (Port 8080)    │
 └──────────────────┘           └──────────────────┘           └──────────────────┘
 ```
+
+Future Enhancements & Prod Roadmap
+
+While this project has been developed as a local cluster as part of learning and implementing an existing API onto a full-stack web app, the path to a production pipeline would involve the following steps:
+* **Automated Production Deployment:** Extending the CI/CD lifecycle beyond the ECR push by triggering an automated webhook or SSH deployment script to an AWS EC2 instance, executing a rolling `docker compose pull && docker compose up -d` update.
+* **Zero-Downtime Orchestration:** Migrating container execution from local Docker to a fully managed cloud runtime such as **AWS Fargate** or an **Amazon EKS** cluster, utilising rolling updates and load balancers to swap image tags live.
+* **Automated Quality Gates:** Expanding the dec
+
 ```text
 Repository Structure
 
@@ -173,10 +181,4 @@ football-dashboard/
 └── kong/
     └── kong.yml             # Kong Gateway config (DB-less mode)
 ```
-
-Future Enhancements & Prod Roadmap
-
-While this project has been developed as a local cluster as part of learning and implementing an existing API onto a full-stack web app, the path to a production pipeline would involve the following steps:
-* **Automated Production Deployment:** Extending the CI/CD lifecycle beyond the ECR push by triggering an automated webhook or SSH deployment script to an AWS EC2 instance, executing a rolling `docker compose pull && docker compose up -d` update.
-* **Zero-Downtime Orchestration:** Migrating container execution from local Docker to a fully managed cloud runtime such as **AWS Fargate** or an **Amazon EKS** cluster, utilising rolling updates and load balancers to swap image tags live.
-* **Automated Quality Gates:** Expanding the declarative `Jenkinsfile` to execute automated backend unit/integration tests (JUnit) and frontend testing suites as blocking gates *before* initiating the Docker build and ECR push stages.
+larative `Jenkinsfile` to execute automated backend unit/integration tests (JUnit) and frontend testing suites as blocking gates *before* initiating the Docker build and ECR push stages.
